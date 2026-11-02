@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revision 1 Grammar Quiz</title>
+<style>
+  :root{
+    --navy:#14213D; --paper:#F6F3EC; --card:#FFFDF8; --line:#DDD6C7;
+    --rust:#A84A0B; --blue:#2A62A0; --orange:#F2A65A; --sky:#8DB8E8;
+    --text:#3B4658; --muted:#5F6B7C; --good:#1E7A4C; --goodbg:#E3F3EA; --bad:#B3261E; --badbg:#FBE9E7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--text);font-family:"Nunito Sans","Segoe UI",Arial,sans-serif;font-size:18px;line-height:1.5}
+  header{background:var(--navy);color:var(--paper);padding:28px 16px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px}
+  header .kicker{color:var(--orange);font-weight:700;letter-spacing:3px;text-transform:uppercase;font-size:14px;margin:0 0 6px}
+  h1{font-family:Domine,Georgia,serif;font-size:34px;margin:0 0 6px;line-height:1.15}
+  header p{margin:0;color:#C9D3E3}
+  .bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:2px solid var(--line)}
+  .bar .wrap{display:flex;align-items:center;gap:16px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+  .progress{flex:1;min-width:160px;height:10px;background:#E9E3D6;border-radius:99px;overflow:hidden}
+  .progress span{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+  .score{font-weight:700;color:var(--navy);white-space:nowrap}
+  main{padding:24px 0 60px}
+  .section-title{font-family:Domine,Georgia,serif;color:var(--navy);font-size:24px;margin:32px 0 4px}
+  .section-tip{color:var(--muted);margin:0 0 14px}
+  .q{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 14px}
+  .q.correct{border-color:var(--good)} .q.wrong{border-color:var(--bad)}
+  .qnum{font-family:Domine,Georgia,serif;color:var(--rust);font-weight:700;margin-right:6px}
+  .stem{margin:0 0 12px;color:var(--navy)}
+  .opts{display:grid;gap:8px}
+  .opt{display:block;width:100%;text-align:left;font:inherit;color:var(--navy);background:#fff;border:2px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer}
+  .opt:hover:not(:disabled){border-color:var(--sky)}
+  .opt:disabled{cursor:default}
+  .opt.picked-right{background:var(--goodbg);border-color:var(--good)}
+  .opt.picked-wrong{background:var(--badbg);border-color:var(--bad)}
+  .opt.show-right{border-color:var(--good);border-style:dashed}
+  .typed{display:flex;gap:8px;flex-wrap:wrap}
+  .typed input{flex:1;min-width:200px;font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:10px;color:var(--navy)}
+  .btn{font:inherit;font-weight:700;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--navy);color:var(--paper)}
+  .btn.alt{background:var(--orange);color:var(--navy)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .fb{margin:12px 0 0;padding:10px 14px;border-radius:10px;display:none}
+  .fb.show{display:block}
+  .fb.good{background:var(--goodbg);color:#0F4D2F}
+  .fb.bad{background:var(--badbg);color:#7A1A14}
+  .result{background:var(--navy);color:var(--paper);border-radius:16px;padding:24px;margin-top:28px;display:none}
+  .result.show{display:block}
+  .result h2{font-family:Domine,Georgia,serif;margin:0 0 8px;color:var(--orange)}
+  .result table{width:100%;border-collapse:collapse;margin:12px 0}
+  .result td{padding:6px 4px;border-bottom:1px solid #2E3D5E}
+  .result td:last-child{text-align:right;font-weight:700}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .namebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .namebox input{font:inherit;padding:8px 10px;border-radius:8px;border:none;min-width:200px}
+  @media (max-width:520px){h1{font-size:26px}body{font-size:17px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="kicker">Aim High 5 · Revision 1 · Units 1–3</p>
+    <h1>Grammar Quiz</h1>
+    <p>Stative verbs · Distancing · Conditionals without <i>if</i> · <i>If only</i> / <i>I wish</i> · Mixed worksheet practice</p>
+  </div>
+</header>
+<div class="bar"><div class="wrap">
+  <div class="progress" aria-hidden="true"><span id="prog"></span></div>
+  <div class="score" id="scoreLine">0 / 0 answered · Score 0</div>
+</div></div>
+<main><div class="wrap" id="quiz"></div>
+<div class="wrap">
+  <div class="result" id="result" aria-live="polite"></div>
+</div></main>
+
+<script>
+/* Question bank.
+   type "mc": options + answer index.
+   type "type": accepted answers (compared without case, extra spaces or final punctuation). */
+const SECTIONS = [
+ {title:"Part A · Stative verbs", tip:"Choose the correct form. A state takes the simple form; an action happening now takes the continuous.", qs:[
+  {type:"mc", stem:"I ____ you’re right about the new timetable.", options:["think","am thinking"], answer:0, why:"<b>think</b> = have an opinion (a state)."},
+  {type:"mc", stem:"I ____ about changing my course next year.", options:["think","am thinking"], answer:1, why:"<b>am thinking</b> = considering (an action in progress)."},
+  {type:"mc", stem:"This perfume ____ wonderful.", options:["smells","is smelling"], answer:0, why:"<b>smells</b> describes a quality, so it stays simple."},
+  {type:"mc", stem:"Why ____ the milk? Is it off?", options:["do you smell","are you smelling"], answer:1, why:"<b>are you smelling</b> = the action of smelling it right now."},
+  {type:"mc", stem:"We ____ dinner at the moment, can I call you back?", options:["have","are having"], answer:1, why:"<b>have dinner</b> = eat, an action, so continuous."},
+  {type:"mc", stem:"This bag ____ to my sister.", options:["belongs","is belonging"], answer:0, why:"<b>belong</b> is always a state verb."},
+  {type:"mc", stem:"I ____ the dentist on Thursday afternoon.", options:["see","am seeing"], answer:1, why:"<b>am seeing</b> = meeting (an arrangement)."},
+  {type:"mc", stem:"Which sentence is correct?", options:["I am understanding the problem now.","I understand the problem now."], answer:1, why:"<b>understand</b> is a state verb: no continuous form."}
+ ]},
+ {title:"Part B · Distancing and polite requests", tip:"Choose the most polite, distant option.", qs:[
+  {type:"mc", stem:"You want more time for your project. You say to your teacher:", options:["Give me more time.","I was wondering if you could give me more time.","I wonder you give me more time."], answer:1, why:"Past continuous <b>was wondering</b> + <b>could</b> creates polite distance."},
+  {type:"mc", stem:"You want to leave work early.", options:["Would it be possible for me to leave early?","Can I leave early or not?","I leave early, OK?"], answer:0, why:"<b>Would it be possible…?</b> is a distanced request."},
+  {type:"mc", stem:"Which sentence disagrees most politely?", options:["Your plan is wrong.","It might be better to change the plan.","You must change the plan."], answer:1, why:"<b>might</b> softens the opinion."},
+  {type:"mc", stem:"Choose the correct polite form: “I ____ you might lend me your notes.”", options:["hope","was hoping","am hope"], answer:1, why:"<b>was hoping</b>: past continuous for distance, even though the request is about now."},
+  {type:"type", stem:"Make this polite, starting with the words given. “Send me the file.” → Could you possibly ____ ?", accept:["send me the file"], why:"Could you possibly <b>send me the file</b>?"}
+ ]},
+ {title:"Part C · Conditionals without if", tip:"Choose or write the best linker.", qs:[
+  {type:"mc", stem:"You can borrow my laptop ____ you bring it back by Friday.", options:["unless","provided that","otherwise"], answer:1, why:"<b>provided that</b> = only if."},
+  {type:"mc", stem:"____ you study, you won’t pass the exam.", options:["Unless","As long as","Supposing"], answer:0, why:"<b>Unless</b> = if not."},
+  {type:"mc", stem:"____ you won the lottery, what would you do first?", options:["Unless","Otherwise","Supposing"], answer:2, why:"<b>Supposing</b> = imagine that (what if?)."},
+  {type:"mc", stem:"Take an umbrella; ____ you’ll get wet.", options:["otherwise","unless","provided"], answer:0, why:"<b>otherwise</b> = if you don’t (it refers back to the first clause)."},
+  {type:"mc", stem:"Which sentence is correct?", options:["Unless you don’t hurry, we’ll miss the bus.","Unless you hurry, we’ll miss the bus.","Unless you will hurry, we’ll miss the bus."], answer:1, why:"No second negative after <b>unless</b>, and present tense for the future."},
+  {type:"mc", stem:"You can come to the party as long as you ____ home by midnight.", options:["will be","are","would be"], answer:1, why:"After <b>as long as</b> we use a present tense for the future."},
+  {type:"type", stem:"Rewrite with “unless”: “If you don’t apologise, she won’t forgive you.” → Unless ____, she won’t forgive you.", accept:["you apologise","you apologize"], why:"Unless <b>you apologise</b>, she won’t forgive you."}
+ ]},
+ {title:"Part D · If only and I wish", tip:"Present regret → past simple · Past regret → past perfect · Annoyance → would.", qs:[
+  {type:"mc", stem:"If only I ____ the answer now!", options:["know","knew","had known"], answer:1, why:"Present regret → <b>past simple</b>."},
+  {type:"mc", stem:"I wish I ____ harder for last year’s exam.", options:["studied","would study","had studied"], answer:2, why:"Past regret → <b>past perfect</b>."},
+  {type:"mc", stem:"If only my brother ____ playing loud music at night!", options:["would stop","stopped","had stopped"], answer:0, why:"Annoyance with someone’s behaviour → <b>would</b>."},
+  {type:"mc", stem:"Which sentence is correct?", options:["If only I would have known about the test.","If only I had known about the test.","If only I knew about the test yesterday."], answer:1, why:"Past regret → <b>had known</b>, never <i>would have known</i>."},
+  {type:"type", stem:"Complete with the correct form of “be”: I wish I ____ taller. (present)", accept:["were","was"], why:"<b>were</b> (formal) or <b>was</b> (informal) – past simple for a present wish."},
+  {type:"type", stem:"Complete with the correct form of “not / eat”: If only I ____ so much at dinner last night.", accept:["hadn't eaten","had not eaten"], why:"Past regret → <b>hadn’t eaten</b>."}
+ ]},
+ {title:"Part E · Mixed worksheet practice", tip:"Find the correct sentence or rewrite it.", qs:[
+  {type:"mc", stem:"Choose the correct sentence.", options:["She is having two older brothers.","She has two older brothers.","She have two older brothers."], answer:1, why:"<b>have</b> for possession is a state: simple form."},
+  {type:"mc", stem:"Choose the best sentence for a formal email.", options:["I want an answer by Friday.","I was wondering whether you could reply by Friday.","Reply by Friday."], answer:1, why:"Distancing makes the request polite."},
+  {type:"mc", stem:"The restaurant will keep our table ____ we phone them before 8 pm.", options:["unless","provided that","even though"], answer:1, why:"Phoning is the condition, so <b>provided that</b> (= only if)."},
+  {type:"mc", stem:"Choose the sentence with the same meaning: “It’s a pity I didn’t go to the concert.”", options:["I wish I went to the concert.","I wish I had gone to the concert.","I wish I would go to the concert."], answer:1, why:"A past regret → <b>wish + past perfect</b>."},
+  {type:"mc", stem:"Choose the correct sentence.", options:["Imagine there were no phones. How would we contact each other?","Imagine there are no phones. How would we contacted each other?","Imagine there were no phones. How we would contact each other?"], answer:0, why:"<b>Imagine</b> + past simple, then <b>would</b> + infinitive in a normal question."},
+  {type:"type", stem:"Rewrite with “as long as”: “You can stay out late only if you text me.” → You can stay out late as long as ____.", accept:["you text me"], why:"…as long as <b>you text me</b>."}
+ ]}
+];
+
+const quiz = document.getElementById('quiz');
+let total = 0, answered = 0, correct = 0;
+const perSection = SECTIONS.map(()=>({right:0, total:0}));
+
+function norm(s){ return s.toLowerCase().replace(/[’']/g,"'").replace(/[.!?,;:]+$/,'').replace(/\s+/g,' ').trim(); }
+
+function updateBar(){
+  document.getElementById('prog').style.width = (answered/total*100)+'%';
+  document.getElementById('scoreLine').textContent = `${answered} / ${total} answered · Score ${correct}`;
+  if(answered === total) showResult();
+}
+
+function mark(card, ok, why, si){
+  answered++; if(ok){correct++; perSection[si].right++;}
+  card.classList.add(ok?'correct':'wrong');
+  const fb = card.querySelector('.fb');
+  fb.innerHTML = (ok?'✔ Correct. ':'✘ Not quite. ') + why;
+  fb.className = 'fb show ' + (ok?'good':'bad');
+  updateBar();
+}
+
+function build(){
+  quiz.innerHTML=''; total=0; answered=0; correct=0;
+  perSection.forEach(p=>{p.right=0;p.total=0;});
+  let n = 0;
+  SECTIONS.forEach((sec, si)=>{
+    const h = document.createElement('h2'); h.className='section-title'; h.textContent = sec.title; quiz.appendChild(h);
+    const tip = document.createElement('p'); tip.className='section-tip'; tip.textContent = sec.tip; quiz.appendChild(tip);
+    sec.qs.forEach(q=>{
+      n++; total++; perSection[si].total++;
+      const card = document.createElement('div'); card.className='q';
+      card.innerHTML = `<p class="stem"><span class="qnum">${n}.</span>${q.stem}</p>`;
+      if(q.type==='mc'){
+        const box = document.createElement('div'); box.className='opts';
+        q.options.forEach((o,i)=>{
+          const b = document.createElement('button'); b.className='opt'; b.type='button';
+          b.textContent = String.fromCharCode(65+i)+')  '+o;
+          b.onclick = ()=>{
+            box.querySelectorAll('button').forEach(x=>x.disabled=true);
+            const ok = i===q.answer;
+            b.classList.add(ok?'picked-right':'picked-wrong');
+            if(!ok) box.children[q.answer].classList.add('show-right');
+            mark(card, ok, q.why, si);
+          };
+          box.appendChild(b);
+        });
+        card.appendChild(box);
+      } else {
+        const row = document.createElement('div'); row.className='typed';
+        row.innerHTML = '<input type="text" aria-label="Your answer" placeholder="Type your answer"><button class="btn" type="button">Check</button>';
+        const inp = row.querySelector('input'), btn = row.querySelector('button');
+        const go = ()=>{
+          if(!inp.value.trim()) return;
+          inp.disabled = true; btn.disabled = true;
+          const ok = q.accept.some(a=>norm(a)===norm(inp.value));
+          mark(card, ok, q.why, si);
+        };
+        btn.onclick = go;
+        inp.addEventListener('keydown', e=>{ if(e.key==='Enter') go(); });
+        card.appendChild(row);
+      }
+      const fb = document.createElement('div'); fb.className='fb'; card.appendChild(fb);
+      quiz.appendChild(card);
+    });
+  });
+  document.getElementById('result').className='result';
+  updateBar();
+}
+
+function showResult(){
+  const pct = Math.round(correct/total*100);
+  const rows = SECTIONS.map((s,i)=>`<tr><td>${s.title}</td><td>${perSection[i].right} / ${perSection[i].total}</td></tr>`).join('');
+  const weakest = SECTIONS.map((s,i)=>({t:s.title, r:perSection[i].right/perSection[i].total})).sort((a,b)=>a.r-b.r)[0];
+  const msg = pct>=85 ? 'Excellent work, Şehide!' : pct>=70 ? 'Good job. Review the part below before Thursday.' : 'Keep going. Revise the slides and try again.';
+  const res = document.getElementById('result');
+  res.innerHTML = `<h2>Your score: ${correct} / ${total} (${pct}%)</h2><p>${msg}</p>
+    <table>${rows}</table>
+    <p>Area to review: <b>${weakest.t}</b></p>
+    <div class="namebox"><input id="nm" type="text" placeholder="Your name" aria-label="Your name" value="Şehide">
+    <button class="btn alt" type="button" id="copyBtn">Copy result for the teacher</button></div>
+    <div class="actions"><button class="btn alt" type="button" id="againBtn">Try again</button></div>`;
+  res.className='result show';
+  document.getElementById('againBtn').onclick = ()=>{ build(); window.scrollTo({top:0,behavior:'smooth'}); };
+  document.getElementById('copyBtn').onclick = async ()=>{
+    const name = document.getElementById('nm').value || 'Student';
+    const txt = `AH5 Revision 1 Grammar Quiz – ${name}: ${correct}/${total} (${pct}%)\n` + SECTIONS.map((s,i)=>`${s.title}: ${perSection[i].right}/${perSection[i].total}`).join('\n');
+    try{ await navigator.clipboard.writeText(txt); document.getElementById('copyBtn').textContent='Copied!'; }
+    catch(e){ prompt('Copy this result:', txt); }
+  };
+}
+
+build();
+</script>
+</body>
+</html>
